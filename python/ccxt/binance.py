@@ -8499,7 +8499,7 @@ class binance(Exchange, ImplicitAPI):
             'previousFundingDatetime': None,
         }
 
-    def parse_account_positions(self, account):
+    def parse_account_positions(self, account, filterClosed=False):
         positions = self.safe_list(account, 'positions')
         assets = self.safe_list(account, 'assets', [])
         balances = {}
@@ -8521,7 +8521,8 @@ class binance(Exchange, ImplicitAPI):
             code = market['quote'] if market['linear'] else market['base']
             maintenanceMargin = self.safe_string(position, 'maintMargin')
             # check for maintenance margin so empty positions are not returned
-            if (maintenanceMargin != '0') and (maintenanceMargin != '0.00000000'):
+            isPositionOpen = (maintenanceMargin != '0') and (maintenanceMargin != '0.00000000')
+            if not filterClosed or isPositionOpen:
                 # sometimes not all the codes are correctly returned...
                 if code in balances:
                     parsed = self.parse_account_position(self.extend(position, {
@@ -9287,10 +9288,11 @@ class binance(Exchange, ImplicitAPI):
         :see: https://binance-docs.github.io/apidocs/delivery/en/#account-information-user_data
         :see: https://binance-docs.github.io/apidocs/pm/en/#get-um-account-detail-user_data
         :see: https://binance-docs.github.io/apidocs/pm/en/#get-cm-account-detail-user_data
-        :param str[]|None symbols: list of unified market symbols
+        :param str[] [symbols]: list of unified market symbols
         :param dict [params]: extra parameters specific to the exchange API endpoint
         :param boolean [params.portfolioMargin]: set to True if you would like to fetch positions in a portfolio margin account
         :param str [params.subType]: "linear" or "inverse"
+        :param boolean [params.filterClosed]: set to True if you would like to filter out closed positions, default is False
         :returns dict: data on account positions
         """
         if symbols is not None:
@@ -9318,7 +9320,9 @@ class binance(Exchange, ImplicitAPI):
                 response = self.dapiPrivateGetAccount(params)
         else:
             raise NotSupported(self.id + ' fetchPositions() supports linear and inverse contracts only')
-        result = self.parse_account_positions(response)
+        filterClosed = None
+        filterClosed, params = self.handle_option_and_params(params, 'fetchAccountPositions', 'filterClosed', False)
+        result = self.parse_account_positions(response, filterClosed)
         symbols = self.market_symbols(symbols)
         return self.filter_by_array_positions(result, 'symbol', symbols, False)
 
