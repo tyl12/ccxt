@@ -17,7 +17,7 @@ import { ed25519 } from './static_dependencies/noble-curves/ed25519.js';
  * @class binance
  * @augments Exchange
  */
-export default class binance extends Exchange { //##@@## binance  -> 2
+export default class binance extends Exchange { //##@@## binance  -> 2, 定义mapping表，在exchange.ts中的constructor中会runtime define rest api的调用
     describe () {
         return this.deepExtend (super.describe (), {
             'id': 'binance',
@@ -204,7 +204,7 @@ export default class binance extends Exchange { //##@@## binance  -> 2
                     'fapiPrivate': 'https://fapi.binance.com/fapi/v1',
                     'fapiData': 'https://fapi.binance.com/futures/data',
                     'fapiPrivateV2': 'https://fapi.binance.com/fapi/v2',
-                    'public': 'https://api.binance.com/api/v3',
+                    'public': 'https://api.binance.com/api/v3', //##@@## -> 10
                     'private': 'https://api.binance.com/api/v3',
                     'v1': 'https://api.binance.com/api/v1',
                     'papi': 'https://papi.binance.com/papi/v1',
@@ -936,10 +936,10 @@ export default class binance extends Exchange { //##@@## binance  -> 2
                         'historicalTrades': 2, // Weight(IP): 10 => cost = 0.2 * 10 = 2
                         'klines': 0.4,
                         'uiKlines': 0.4,
-                        'ticker/24hr': { 'cost': 0.4, 'noSymbol': 16 },
-                        'ticker': { 'cost': 0.4, 'noSymbol': 16 },
+                        'ticker/24hr': { 'cost': 0.4, 'noSymbol': 16 }, //##@@## -> 11,  GET /api/v3/ticker/24hr;
+                        'ticker': { 'cost': 0.4, 'noSymbol': 16 }, //##@@## -> 11, publicGetTicker(), GET /api/v3/ticker, https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#symbol-price-ticker
                         'ticker/tradingDay': 0.8,
-                        'ticker/price': { 'cost': 0.4, 'noSymbol': 0.8 },
+                        'ticker/price': { 'cost': 0.4, 'noSymbol': 0.8 }, //##@@## fetchLastPrice() => publicGetTickerPrice(), GET /api/v3/ticker/price
                         'ticker/bookTicker': { 'cost': 0.4, 'noSymbol': 0.8 },
                         'exchangeInfo': 4, // Weight(IP): 20 => cost = 0.2 * 20 = 4
                         'avgPrice': 0.4,
@@ -4002,7 +4002,7 @@ export default class binance extends Exchange { //##@@## binance  -> 2
             //     ]
             //
         } else if (type === 'spot') {
-            response = await this.publicGetTickerPrice (params);
+            response = await this.publicGetTickerPrice (params); //##@@
             //
             //     [
             //         {

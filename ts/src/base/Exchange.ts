@@ -838,7 +838,7 @@ export default class Exchange {
         }
         // generate implicit api
         if (this.api) {
-            this.defineRestApi (this.api, 'request')
+            this.defineRestApi (this.api, 'request') //##@@##
         }
         // init the request rate limiter
         this.initRestRateLimiter ()
@@ -925,13 +925,13 @@ export default class Exchange {
         const underscore = underscorePrefix + '_' + lowercaseMethod + '_' + underscoreSuffix
         const typeArgument = (paths.length > 1) ? paths : paths[0]
         // handle call costs here
-        const partial = async (params = {}, context = {}) => this[methodName] (path, typeArgument, uppercaseMethod, params, undefined, undefined, config, context)
+        const partial = async (params = {}, context = {}) => this[methodName] (path, typeArgument, uppercaseMethod, params, undefined, undefined, config, context) //##@@## methodname: fetch, get, post ...
         // const partial = async (params) => this[methodName] (path, typeArgument, uppercaseMethod, params || {})
         this[camelcase]  = partial
         this[underscore] = partial
     }
 
-    defineRestApi (api, methodName, paths = []) {
+    defineRestApi (api, methodName, paths = []) { //##@@##
         const keys = Object.keys (api)
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i]
@@ -942,7 +942,7 @@ export default class Exchange {
             if (Array.isArray (value)) {
                 for (let k = 0; k < value.length; k++) {
                     const path = value[k].trim ()
-                    this.defineRestApiEndpoint (methodName, uppercaseMethod, lowercaseMethod, camelcaseMethod, path, paths)
+                    this.defineRestApiEndpoint (methodName, uppercaseMethod, lowercaseMethod, camelcaseMethod, path, paths) //##@@## runtime define api
                 }
             // the options HTTP method conflicts with the 'options' API url path
             // } else if (key.match (/^(?:get|post|put|delete|options|head|patch)$/i)) {
@@ -1063,7 +1063,7 @@ export default class Exchange {
     }
 
 
-    async fetch (url, method = 'GET', headers: any = undefined, body: any = undefined) {
+    async fetch (url, method = 'GET', headers: any = undefined, body: any = undefined) { //##@@##
 
         // load node-http(s) modules only on first call
         if (isNode) {
@@ -1397,7 +1397,7 @@ export default class Exchange {
     client (url: string): WsClient {
         this.clients = this.clients || {};
         if (!this.clients[url]) {
-            const onMessage = this.handleMessage.bind (this);
+            const onMessage = this.handleMessage.bind (this); //##@@##
             const onError = this.onError.bind (this);
             const onClose = this.onClose.bind (this);
             const onConnected = this.onConnected.bind (this);
@@ -1420,7 +1420,9 @@ export default class Exchange {
                     'agent': finalAgent,
                 }
             }, wsOptions);
-            this.clients[url] = new WsClient (url, onMessage, onError, onClose, onConnected, options);
+
+            
+            this.clients[url] = new WsClient (url, onMessage, onError, onClose, onConnected, options); //##@@## -> 27, 构造 wsclient, 设置ws 回调 onMessage
         }
         return this.clients[url];
     }
@@ -1434,7 +1436,7 @@ export default class Exchange {
         //     const future = client.future (messageHash)
         //     const connected = client.connect (backoffDelay)
         //     connected.then (() => {
-        //         if (message && !client.subscriptions[subscribeHash]) {
+        //         if (message && !client.subscriptions[subscribeHash]) { //##@@## ->25, 没有订阅则订阅，已订阅，则跳过
         //             client.subscriptions[subscribeHash] = true
         //             client.send (message)
         //         }
@@ -1457,7 +1459,7 @@ export default class Exchange {
         //                                 |               |
         //                             subscribe -----→ receive
         //
-        const future = Future.race (messageHashes.map (messageHash => client.future (messageHash)))
+        const future = Future.race (messageHashes.map (messageHash => client.future (messageHash))) //##@@## 先拿到 future，如果是首次订阅，则后面connect，sendcmd后，得到返回结果后，resolve future，会返回
         // read and write subscription, this is done before connecting the client
         // to avoid race conditions when other parts of the code read or write to the client.subscriptions
         let missingSubscriptions = []
@@ -1474,7 +1476,7 @@ export default class Exchange {
         // the policy is to make sure that 100% of promises are resolved or rejected
         // either with a call to client.resolve or client.reject with
         //  a proper exception class instance
-        const connected = client.connect (backoffDelay);
+        const connected = client.connect (backoffDelay); //##@@## create websocket connection
         // the following is executed only if the catch-clause does not
         // catch any connection-level exceptions from the client
         // (connection established successfully)
@@ -1488,7 +1490,7 @@ export default class Exchange {
                         //               |
                         //               V
                         client.throttle (cost).then (() => {
-                            client.send (message);
+                            client.send (message); //##@@## -> 24 send msg, will get result via ws.
                         }).catch ((e) => {
                             for (let i = 0; i < missingSubscriptions.length; i++) {
                                 const subscribeHash = missingSubscriptions[i];

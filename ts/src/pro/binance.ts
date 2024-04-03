@@ -62,7 +62,7 @@ export default class binance extends binanceRest { //##@@## binance pro -> 1
                 },
                 'api': {
                     'ws': {
-                        'spot': 'wss://stream.binance.com:9443/ws',
+                        'spot': 'wss://stream.binance.com:9443/ws', //##@@## 25, ws 监听地址, https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-streams.md
                         'margin': 'wss://stream.binance.com:9443/ws',
                         'future': 'wss://fstream.binance.com/ws',
                         'delivery': 'wss://dstream.binance.com/ws',
@@ -965,7 +965,7 @@ export default class binance extends binanceRest { //##@@## binance pro -> 1
          */
         await this.loadMarkets ();
         symbol = this.symbol (symbol);
-        const tickers = await this.watchTickers ([ symbol ], this.extend (params, { 'callerMethodName': 'watchTicker' }));
+        const tickers = await this.watchTickers ([ symbol ], this.extend (params, { 'callerMethodName': 'watchTicker' })); //##@@## -> 21
         return tickers[symbol];
     }
 
@@ -983,7 +983,7 @@ export default class binance extends binanceRest { //##@@## binance pro -> 1
         if (channelName === 'bookTicker') {
             throw new BadRequest (this.id + ' deprecation notice - to subscribe for bids-asks, use watch_bids_asks() method instead');
         }
-        const newTickers = await this.watchMultiTickerHelper ('watchTickers', channelName, symbols, params);
+        const newTickers = await this.watchMultiTickerHelper ('watchTickers', channelName, symbols, params); //##@@## -> 22
         if (this.newUpdates) {
             return newTickers;
         }
@@ -1009,7 +1009,7 @@ export default class binance extends binanceRest { //##@@## binance pro -> 1
         return this.filterByArray (this.tickers, 'symbol', symbols);
     }
 
-    async watchMultiTickerHelper (methodName, channelName: string, symbols: Strings = undefined, params = {}) {
+    async watchMultiTickerHelper (methodName, channelName: string, symbols: Strings = undefined, params = {}) {//##@@## -> 22
         await this.loadMarkets ();
         symbols = this.marketSymbols (symbols, undefined, true, false, true);
         let firstMarket = undefined;
@@ -1056,9 +1056,9 @@ export default class binance extends binanceRest { //##@@## binance pro -> 1
         if (symbolsDefined) {
             streamHash = channelName + '::' + symbols.join (',');
         }
-        const url = this.urls['api']['ws'][rawMarketType] + '/' + this.stream (rawMarketType, streamHash);
+        const url = this.urls['api']['ws'][rawMarketType] + '/' + this.stream (rawMarketType, streamHash); //##@@## -> 23, ws url
         const requestId = this.requestId (url);
-        const request = {
+        const request = { //##@@## -> 24, websocket request
             'method': 'SUBSCRIBE',
             'params': subscriptionArgs,
             'id': requestId,
@@ -1066,7 +1066,7 @@ export default class binance extends binanceRest { //##@@## binance pro -> 1
         const subscribe = {
             'id': requestId,
         };
-        const result = await this.watchMultiple (url, messageHashes, this.deepExtend (request, params), subscriptionArgs, subscribe);
+        const result = await this.watchMultiple (url, messageHashes, this.deepExtend (request, params), subscriptionArgs, subscribe); //##@@##
         // for efficiency, we have two type of returned structure here - if symbols array was provided, then individual
         // ticker dict comes in, otherwise all-tickers dict comes in
         if (!symbolsDefined) {
@@ -1242,7 +1242,7 @@ export default class binance extends binanceRest { //##@@## binance pro -> 1
             }
             const messageHash = this.getMessageHash (channelName, symbol, isBidAsk);
             resolvedMessageHashes.push (messageHash);
-            client.resolve (parsedTicker, messageHash);
+            client.resolve (parsedTicker, messageHash); //##@@## 触发 await watchTicker() 接收消息
         }
         // resolve batch endpoint
         const length = resolvedMessageHashes.length;
@@ -3046,7 +3046,7 @@ export default class binance extends binanceRest { //##@@## binance pro -> 1
         }
     }
 
-    handleMessage (client: Client, message) {
+    handleMessage (client: Client, message) { //##@@## websocket 订阅后，收到消息之后的回掉
         // handle WebSocketAPI
         const status = this.safeString (message, 'status');
         const error = this.safeValue (message, 'error');
@@ -3110,7 +3110,7 @@ export default class binance extends binanceRest { //##@@## binance pro -> 1
             //     }
             //
             if (event === undefined && ('a' in message) && ('b' in message)) {
-                this.handleBidsAsks (client, message);
+                this.handleBidsAsks (client, message); //##@@## -> 28
             }
         } else {
             method.call (this, client, message);

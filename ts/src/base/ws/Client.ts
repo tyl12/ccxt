@@ -61,7 +61,7 @@ export default class Client {
 
     throttle: any
 
-    constructor (url, onMessageCallback, onErrorCallback, onCloseCallback, onConnectedCallback, config = {}) {
+    constructor (url, onMessageCallback, onErrorCallback, onCloseCallback, onConnectedCallback, config = {}) { //##@@## onMessageCallback
         const defaults = {
             url,
             onMessageCallback,
@@ -116,7 +116,7 @@ export default class Client {
         if (messageHash in this.futures) {
             const promise = this.futures[messageHash]
             promise.resolve (result)
-            delete this.futures[messageHash]
+            delete this.futures[messageHash] //##@@## 本次fetchTicker返回的future，在resolve之后，会被delete掉，即，每次API调用都是返回的新的future对象，如果在两次调用中间有新数据来过，也不会返回，而是始终等到当前订阅之后ws返回新数据
         }
         return result
     }
@@ -323,7 +323,7 @@ export default class Client {
         throw new NotSupported ('close() not implemented yet');
     }
 
-    onMessage (messageEvent : any) {
+    onMessage (messageEvent : any) { //###@@## -> 27
         // if we use onmessage we get MessageEvent objects
         // MessageEvent {isTrusted: true, data: "{"e":"depthUpdate","E":1581358737706,"s":"ETHBTC",…"0.06200000"]],"a":[["0.02261300","0.00000000"]]}", origin: "wss://stream.binance.com:9443", lastEventId: "", source: null, …}
 
