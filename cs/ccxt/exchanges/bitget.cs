@@ -2737,7 +2737,7 @@ public partial class bitget : Exchange
         }, market);
     }
 
-    public async override Task<object> fetchTicker(object symbol, object parameters = null)//##@@##
+    public async override Task<object> fetchTicker(object symbol, object parameters = null)
     {
         /**
         * @method

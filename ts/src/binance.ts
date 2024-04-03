@@ -17,7 +17,7 @@ import { ed25519 } from './static_dependencies/noble-curves/ed25519.js';
  * @class binance
  * @augments Exchange
  */
-export default class binance extends Exchange { //##@@## binance  -> 2
+export default class binance extends Exchange {
     describe () {
         return this.deepExtend (super.describe (), {
             'id': 'binance',
@@ -3876,7 +3876,7 @@ export default class binance extends Exchange { //##@@## binance  -> 2
         };
     }
 
-    async fetchTicker (symbol: string, params = {}): Promise<Ticker> { //##@@## -> 3
+    async fetchTicker (symbol: string, params = {}): Promise<Ticker> {
         /**
          * @method
          * @name binance#fetchTicker
@@ -3909,7 +3909,7 @@ export default class binance extends Exchange { //##@@## binance  -> 2
             if (rolling) {
                 response = await this.publicGetTicker (this.extend (request, params));
             } else {
-                response = await this.publicGetTicker24hr (this.extend (request, params)); //##@@##
+                response = await this.publicGetTicker24hr (this.extend (request, params));
             }
         }
         if (Array.isArray (response)) {
@@ -4060,7 +4060,7 @@ export default class binance extends Exchange { //##@@## binance  -> 2
         };
     }
 
-    async fetchTickers (symbols: Strings = undefined, params = {}): Promise<Tickers> { //##@@## -> 7, fetchTicker() will call this from base class Exchange.ts
+    async fetchTickers (symbols: Strings = undefined, params = {}): Promise<Tickers> {
         /**
          * @method
          * @name binance#fetchTickers
@@ -4078,7 +4078,7 @@ export default class binance extends Exchange { //##@@## binance  -> 2
         symbols = this.marketSymbols (symbols, undefined, true, true, true);
         const market = this.getMarketFromSymbols (symbols);
         let type = undefined;
-        [ type, params ] = this.handleMarketTypeAndParams ('fetchTickers', market, params); //##@@##
+        [ type, params ] = this.handleMarketTypeAndParams ('fetchTickers', market, params);
         let subType = undefined;
         [ subType, params ] = this.handleSubTypeAndParams ('fetchTickers', market, params);
         let response = undefined;
@@ -4091,7 +4091,7 @@ export default class binance extends Exchange { //##@@## binance  -> 2
             if (symbols !== undefined) {
                 request['symbols'] = this.json (this.marketIds (symbols));
             }
-            response = await this.publicGetTicker24hr (this.extend (request, params));//##@@## -> 8
+            response = await this.publicGetTicker24hr (this.extend (request, params));
         } else if (type === 'option') {
             response = await this.eapiPublicGetTicker (params);
         } else {
